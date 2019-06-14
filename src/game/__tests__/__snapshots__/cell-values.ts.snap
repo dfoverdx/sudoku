@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`only returns values in the supplied set if passed an argument 1`] = `
+Array [
+  1,
+  3,
+  5,
+]
+`;
+
+exports[`only returns values in the supplied set if passed an argument 2`] = `
+Array [
+  4,
+  6,
+  9,
+]
+`;
+
+exports[`returns the values 1 through 9 when passed no arguments 1`] = `
+Array [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+]
+`;
