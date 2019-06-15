@@ -1,7 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`EmptyCell can be instantiated 1`] = `
-EmptyCell {
+exports[`can be instantiated with a value 1`] = `
+Cell {
+  "_value": 1,
+  "isValid": true,
+}
+`;
+
+exports[`can be instantiated without a value 1`] = `
+Cell {
   "isValid": true,
   "notes": Set {
     1,

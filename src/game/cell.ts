@@ -1,60 +1,58 @@
-import cellValues, { CellValue } from './cell-values';
+import { AllCellValues, CellValue } from './cell-values';
 
-abstract class CellBase {
-    public isValid: boolean = true;
-    public abstract canBe(val: CellValue): boolean;
-}
+export type Notes = Set<CellValue>;
 
-export class ValueCell extends CellBase {
-    constructor(private val: CellValue) {
-        super();
+export default class Cell {
+    constructor(value: CellValue);
+    constructor(notes?: Notes);
+    constructor(val?: CellValue | Notes) {
+        if (val instanceof Set) {
+            this.notes = val;
+        } else if (val !== undefined) {
+            if (!val || isNaN(val) || val < 1 || val > 9 || val !== parseInt(val)) {
+                throw new Error(`Invalid 'val' specified: ${val}`);
+            }
 
-        if (!this.val || isNaN(this.val) || this.val < 1 || this.val > 9 || this.val !== parseInt(this.val)) {
-            throw new Error(`Invalid 'val' specified: ${this.val}`);
+            this._value = val;
+        } else {
+            this.notes = new Set(AllCellValues) as Notes;
         }
     }
 
+    public isValid: boolean = true;
+
+    public readonly notes?: Notes;
+
+    private _value?: CellValue;
     public get value() {
-        return this.val;
+        return this._value;
     }
 
-    public set value(val: CellValue) {
-        if (this.val) {
-            if (this.val !== val) {
-                throw new Error(`Cannot set cell value to ${val}.  It has already been set to ${this.val}.`);
-            } else {
-                console.warn(`Attempting to set cell value to ${val} after it has already been set.`);
+    public set value(val) {
+        if (val) {
+            if (this._value) {
+                if (val !== this._value) {
+                    throw new Error(`Cannot set cell value to ${val}.  It has already been set to ${this._value}.`);                
+                } else {
+                    console.warn(`Attempting to set cell value to ${val} after it has already been set.`);
+                }
+            } else if (val && !this.canBe(val)) {
+                throw new Error(`Cannot set cell to value ${val}.`);
             }
         }
-
-        this.val = val;
     }
 
-    public canBe(val: CellValue) {
-        return val === this.value;
-    }
-}
 
-export class EmptyCell extends CellBase {
-    public readonly notes: Set<CellValue> = new Set(cellValues());
+    public canBe(val: CellValue): boolean {
+        if (this._value) {
+            return this._value === val;
+        }
 
-    public canBe(val: CellValue) {
-        return this.notes.has(val);
+        return this.notes!.has(val);
     }
 
     public mustBe(): CellValue | false {
-        return this.notes.size === 1 ? this.notes.values().next().value : false;
-    }
-
-    public setValue(val: CellValue) {
-        if (!this.canBe(val)) {
-            throw new Error(`Cannot set cell to value ${val}.`);
-        }
-
-        delete (this as any).notes;
-        this.constructor = ValueCell;
-        (this as any as ValueCell).value = val;
+        return !this.notes ? this._value as CellValue : 
+            this.notes.size === 1 ? this.notes.values().next().value : false;
     }
 }
-
-export type Cell = ValueCell | EmptyCell;
