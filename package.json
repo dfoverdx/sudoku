@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Sudoku solver",
   "scripts": {
+    "build": "tsc",
+    "build-watch": "tsc --watch",
     "test": "jest"
   },
   "keywords": [

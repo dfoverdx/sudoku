@@ -1,4 +1,4 @@
-import '../helpers/readonly-array';
+import '../helpers/array-extensions';
 import Cell from './cell';
 import { CellIndex, CellValue, Indices } from './cell-values';
 
@@ -32,12 +32,12 @@ export default class Board {
     }
 
     get cols(): Cells<Col> {
-        return Indices.map(c => this.values[c as number]) as Cells<Row>;        
+        return Indices.map(c => this.values[c as number]) as Cells<Row>;
     }
 
     get regions(): Cells<Region> {
-        return RegionsIndicies.map(indicies => 
-            indicies.map(([r, c]) => 
+        return RegionsIndicies.map(indicies =>
+            indicies.map(([r, c]) =>
                 this.values[r as number][c as number])) as Cells<Region>;
     }
 
@@ -56,20 +56,20 @@ export default class Board {
 
         for (const idx of Indices) {
             let upCell = this.values[idx][col];
-            if (row !== idx && !upCell.value) {
-                upCell.notes!.delete(value);
+            if (row !== idx && upCell.notes) {
+                upCell.removeNote(value);
             }
 
             upCell = this.values[row][idx];
-            if (col !== idx && !upCell.value) {
-                upCell.notes!.delete(value);
+            if (col !== idx && upCell.notes) {
+                upCell.removeNote(value);
             }
         }
 
         for (const [rowIdx, colIdx] of genRegionIndices(getRegion(row, col))) {
             const upCell = this.values[rowIdx][colIdx];
-            if ((row !== rowIdx || col !== colIdx) && !upCell.value) {
-                upCell.notes!.delete(value);
+            if ((row !== rowIdx || col !== colIdx) && upCell.notes) {
+                upCell.removeNote(value);
             }
         }
 
@@ -108,14 +108,14 @@ export default class Board {
     static get Empty(): Board {
         const genRows = function*() {
             for (let row = 0; row < 9; row++) {
-                yield [ 
-                    new Cell(), new Cell(), new Cell(), 
-                    new Cell(), new Cell(), new Cell(), 
+                yield [
+                    new Cell(), new Cell(), new Cell(),
+                    new Cell(), new Cell(), new Cell(),
                     new Cell(), new Cell(), new Cell()
                 ] as Row;
             }
         }
-        
+
         return new Board(Array.from(genRows()) as Cells);
     }
 
@@ -127,7 +127,7 @@ export default class Board {
             throw new Error(`Invalid board data: ${data}`);
         }
 
-        const rows = lines.map(line => 
+        const rows = lines.map(line =>
             Array.from(line).map(l => l === '.' ? new Cell() : new Cell(parseInt(l) as CellValue)));
 
         return new Board(rows as Cells<Row>);

@@ -2,14 +2,6 @@
 
 exports[`only returns values in the supplied set if passed an argument 1`] = `
 Array [
-  1,
-  3,
-  5,
-]
-`;
-
-exports[`only returns values in the supplied set if passed an argument 2`] = `
-Array [
   4,
   6,
   9,

@@ -40,7 +40,7 @@ it('throws an error if instantiated with an invalid value', () => {
         `"Invalid 'val' specified: abc"`
     );
     expect(nc([])).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid 'val' specified: "`
+        `"Notes array must contain 9 elements.  Found 0."`
     );
     expect(nc(null)).toThrowErrorMatchingInlineSnapshot(
         `"Invalid 'val' specified: null"`
@@ -59,20 +59,19 @@ it('throws an error if instantiated with an invalid value', () => {
 describe('canBe()', () => {
     it('with a value, only returns `true` for `canBe()` on its own value', () => {
         for (let i of cellValues()) {
-            const v = new Cell(i);
+            const cell = new Cell(i);
 
             for (let j of cellValues()) {
-                expect(v.canBe(j)).toBe(i === j);
+                expect(cell.canBe(j)).toBe(i === j);
             }
         }
     });
 
     it('without a value, returns `true` if a the value is in the `notes`, else `false`', () => {
-        const v = new Cell();
-        v.notes!.delete(1);
+        const cell = new Cell();
+        cell.removeNote(1);
         for (let i of cellValues()) {
-            expect(v.canBe(i)).toBe(i !== 1);
+            expect(cell.canBe(i)).toBe(i !== 1);
         }
     });
 });
-

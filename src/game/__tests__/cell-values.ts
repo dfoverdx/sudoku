@@ -1,13 +1,11 @@
-import cellValues, { CellValue } from '../cell-values';
+import { Notes } from '../cell';
+import cellValues from '../cell-values';
 
 it('returns the values 1 through 9 when passed no arguments', () => {
     expect(Array.from(cellValues())).toMatchSnapshot();
 });
 
 it('only returns values in the supplied set if passed an argument', () => {
-    const notesSet = new Set<CellValue>([ 1, 3, 5 ]);
-    expect(Array.from(cellValues(notesSet))).toMatchSnapshot();
-
-    const notesArray: CellValue[] = [ 4, 6, 9 ];
-    expect(Array.from(cellValues(notesArray))).toMatchSnapshot();
+    const notes: Notes = [ false, false, false, true, false, true, false, false, true ];
+    expect(Array.from(cellValues(notes))).toMatchSnapshot();
 });
