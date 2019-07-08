@@ -40,6 +40,11 @@ export default class Cell {
                 throw new Error(`Cannot set cell to value ${val}.`);
             }
         }
+
+        this._value = val;
+        if (this.notes) {
+            this.notes!.clear();
+        }
     }
 
 
