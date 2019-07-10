@@ -1,14 +1,17 @@
 import '../helpers/array-extensions';
-import { CellIndex, CellValue } from './cell-values';
+import { CellIndex, CellValue, Indices } from './cell-values';
 
 export type Notes = [boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean];
 const AllNotes: Notes = new Array(9).fill(true).toReadonly() as Notes;
 
 export default class Cell {
     constructor(value: CellValue);
+    constructor(noteSet: Set<CellValue>);
     constructor(notes?: Notes);
-    constructor(val: CellValue | Notes = AllNotes.slice() as Notes) {
-        if (Array.isArray(val)) {
+    constructor(val: CellValue | Notes | Set<CellValue> = AllNotes.slice() as Notes) {
+        if (val instanceof Set) {
+            this.notes = Indices.map(i => val.has(i + 1 as CellValue)) as Notes;
+        } else if (Array.isArray(val)) {
             if (val.length !== 9) {
                 throw new Error(`Notes array must contain 9 elements.  Found ${val.length}.`);
             }
@@ -24,7 +27,6 @@ export default class Cell {
     }
 
     public isValid: boolean = true;
-
     public readonly notes?: Notes;
 
     private _value?: CellValue;
@@ -37,7 +39,7 @@ export default class Cell {
             if (this._value) {
                 if (val !== this._value) {
                     throw new Error(`Cannot set cell value to ${val}.  It has already been set to ${this._value}.`);
-                } else {
+                } else if (!Cell.parsing) {
                     console.warn(`Attempting to set cell value to ${val} after it has already been set.`);
                 }
             } else if (val && !this.canBe(val)) {
@@ -82,4 +84,22 @@ export default class Cell {
         this.notes[val - 1] = false;
         return oldVal;
     }
+
+    public print(): string {
+        if (this.value) {
+            return `
+┌─┐
+│${this.value}│
+└─┘`.trim();
+        }
+
+        const n = (v: CellValue) => this.notes![v - 1] ? v : ' ';
+        return [
+            [n(1), n(2), n(3)],
+            [n(4), n(5), n(6)],
+            [n(7), n(8), n(9)],
+        ].map(row => row.join('') + '\n').join('');
+    }
+
+    static parsing: boolean = false;
 }

@@ -6,5 +6,5 @@ declare global {
 
     function isNaN(s: string | number): boolean;
 
-    // type Omit<T, K> = Pick<T, Exclude<keyof T, K>>;
+    type ElementType<T> = T extends (infer U)[] ? U : T;
 }

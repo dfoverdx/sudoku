@@ -1,9 +1,43 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`can be instantiated with a Set 1`] = `
+Cell {
+  "isValid": true,
+  "notes": Array [
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+  ],
+}
+`;
+
 exports[`can be instantiated with a value 1`] = `
 Cell {
   "_value": 1,
   "isValid": true,
+}
+`;
+
+exports[`can be instantiated with an array 1`] = `
+Cell {
+  "isValid": true,
+  "notes": Array [
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+  ],
 }
 `;
 

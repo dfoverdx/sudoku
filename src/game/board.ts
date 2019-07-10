@@ -80,20 +80,46 @@ export default class Board {
         return new Board(this.rows);
     }
 
-    print(): string {
-        let rowLines = [];
-        for (let row of this.rows) {
-            let rStr = row.map(cell => cell.value || '.').join('');
-            rowLines.push(`${rStr.substr(0, 3)}|${rStr.substr(3, 3)}|${rStr.substr(6)}`);
+    print(notes = false): string {
+        if (!notes) {
+            let rowLines = [];
+            for (let row of this.rows) {
+                let rStr = row.map(cell => cell.value || '.').join('');
+                rowLines.push(`${rStr.substr(0, 3)}|${rStr.substr(3, 3)}|${rStr.substr(6)}`);
+            }
+
+            rowLines.splice(6, 0, '---+---+---');
+            rowLines.splice(3, 0, '---+---+---');
+
+            return rowLines.join('\n');
         }
 
-        rowLines.splice(6, 0, '---+---+---');
-        rowLines.splice(3, 0, '---+---+---');
+        const cellNotes = this.rows.map(r => r.map(cell => cell.print().split('\n'))).flat(),
 
-        return rowLines.join('\n');
+            noteRowStr = (idx: CellIndex, cr: 0 | 1 | 2) => {
+                const [
+                    r1, r2, r3,
+                    r4, r5, r6,
+                    r7, r8, r9,
+                ] = cellNotes.slice(idx * 9);
+                return `${r1[cr]}  ${r2[cr]}  ${r3[cr]}  ┃  ${r4[cr]}  ${r5[cr]}  ${r6[cr]}  ┃  ${r7[cr]}  ${r8[cr]}  ${r9[cr]}` +
+                    (cr === 2 && idx % 3 !== 2 ? '\n               ┃                 ┃               ' : '');
+            },
+
+            rowStr = (r: CellIndex) => `${noteRowStr(r, 0)}
+${noteRowStr(r, 1)}
+${noteRowStr(r, 2)}`;
+
+        const str = Indices.map(r => rowStr(r));
+        str.splice(6, 0, '━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━');
+        str.splice(3, 0, '━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━');
+
+        return str.join('\n').trimEnd();
     }
 
     private initNotes(): void {
+        Cell.parsing = true;
+
         for (let reg of RegionsIndicies) {
             for (let [row, col] of reg) {
                 const cell = this.values[row][col];
@@ -103,6 +129,8 @@ export default class Board {
                 }
             }
         }
+
+        Cell.parsing = false;
     }
 
     static get Empty(): Board {
@@ -134,16 +162,15 @@ export default class Board {
     }
 }
 
-function getRegion(row: CellIndex, col: CellIndex) {
-    let regCol = col % 3,
+export function getRegion(row: CellIndex, col: CellIndex) {
+    let regCol = parseInt(col / 3),
         regRow = parseInt(row / 3);
-
     return regRow * 3 + regCol as CellIndex;
 }
 
-function* genRegionIndices(region: CellIndex) {
+export function* genRegionIndices(region: CellIndex) {
     const rowStart = parseInt(region / 3),
-        colStart = region % 3;
+        colStart = (region % 3) * 3;
 
     for (let r = 0; r < 3; r++) {
         for (let c = 0; c < 3; c++) {

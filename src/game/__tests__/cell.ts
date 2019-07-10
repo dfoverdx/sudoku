@@ -1,5 +1,9 @@
 import Cell from '../cell';
-import cellValues from '../cell-values';
+import cellValues, { CellValue } from '../cell-values';
+
+afterEach(() => {
+    jest.restoreAllMocks();
+});
 
 it('can be instantiated without a value', () => {
     const v = new Cell();
@@ -8,6 +12,26 @@ it('can be instantiated without a value', () => {
 
 it('can be instantiated with a value', () => {
     let v = new Cell(1);
+    expect(v).toMatchSnapshot();
+});
+
+it('can be instantiated with an array', () => {
+    let v = new Cell([
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+    ]);
+    expect(v).toMatchSnapshot();
+});
+
+it('can be instantiated with a Set', () => {
+    let v = new Cell(new Set<CellValue>([1, 2, 3]));
     expect(v).toMatchSnapshot();
 });
 
@@ -28,8 +52,6 @@ it(`can't have its value overwritten`, () => {
         `"Cannot set cell value to 2.  It has already been set to 1."`
     );
     expect(console.warn).not.toHaveBeenCalled();
-
-    spy.mockRestore();
 });
 
 it('throws an error if instantiated with an invalid value', () => {
@@ -56,6 +78,28 @@ it('throws an error if instantiated with an invalid value', () => {
     );
 });
 
+it('warns if setting a value to itself unless parsing', () => {
+    const spy = jest.spyOn(console, 'warn').mockImplementationOnce(msg => {
+            expect(msg).toMatchInlineSnapshot(
+                `"Attempting to set cell value to 1 after it has already been set."`
+            );
+        }),
+        cell = new Cell(1);
+
+    cell.value = 1;
+    expect(console.warn).toHaveBeenCalledTimes(1);
+
+    spy.mockReset();
+    try {
+        Cell.parsing = true;
+        cell.value = 1;
+    } finally {
+        Cell.parsing = false;
+    }
+
+    expect(console.warn).not.toHaveBeenCalled();
+});
+
 describe('canBe()', () => {
     it('with a value, only returns `true` for `canBe()` on its own value', () => {
         for (let i of cellValues()) {
@@ -74,4 +118,29 @@ describe('canBe()', () => {
             expect(cell.canBe(i)).toBe(i !== 1);
         }
     });
+});
+
+it('prints', () => {
+    let cell = new Cell(1);
+    expect(cell.print()).toMatchInlineSnapshot(`
+        "┌─┐
+        │1│
+        └─┘"
+    `);
+
+    cell = new Cell();
+    expect(cell.print()).toMatchInlineSnapshot(`
+                                "123
+                                456
+                                789
+                                "
+                `);
+
+    cell = new Cell(new Set<CellValue>([1, 5, 9]));
+    expect(cell.print()).toMatchInlineSnapshot(`
+                "1  
+                 5 
+                  9
+                "
+        `);
 });

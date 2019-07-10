@@ -21,6 +21,7 @@
     "@types/react-dom": "^16.8.4",
     "@types/typescript": "^2.0.0",
     "@types/webpack": "^4.4.34",
+    "array-flat-polyfill": "^1.0.1",
     "awesome-typescript-loader": "^5.2.1",
     "css-loader": "^3.0.0",
     "esm": "^3.2.25",
