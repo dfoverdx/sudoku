@@ -1,3 +1,3 @@
-import './helpers/readonly-array';
+import './helpers/array-extensions';
 import './polyfill';
 

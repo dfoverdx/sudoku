@@ -2,3 +2,6 @@ node_modules
 /coverage
 /test/*.js
 /test/*.js.map
+/src/**/*.js
+/src/**/*.js.map
+/dist
