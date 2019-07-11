@@ -1,6 +1,7 @@
 import Board from '../board';
 // import { rules } from '../run';
 import run, { rules } from '../run';
+import { EasyBoard, FullBoard, HardBoard } from './boards/test-boards';
 
 // const rRun = rewire('run'),
 //     // @ts-ignore
@@ -8,32 +9,9 @@ import run, { rules } from '../run';
 //     // @ts-ignore
 //     ruleOnlyCellCanBeValue = rRun.__get__('ruleOnlyCellCanBeValue');
 
-const EasyBoard = Board.parse(`
-    .4.9..38.
-    6......9.
-    29.3745..
-    .17.96.23
-    ...2...54
-    8.47.....
-    ..253.9.8
-    4...276.1
-    .81...27.
-`);
-
 describe('run()', () => {
     it('returns true if the board is complete', () => {
-        const fullBoard = Board.parse(`
-            123456789
-            456789123
-            789123456
-            234567891
-            567891234
-            891234567
-            345678912
-            678912345
-            912345678`);
-
-        expect(run(fullBoard)).toBe(true);
+        expect(run(FullBoard)).toBe(true);
     }, 2000);
 
     it('returns false if the board is incomplete', () => {
@@ -97,4 +75,8 @@ test('ruleCanOnlyBeValue', () => {
 
     while (rules.canOnlyBeValue(board)) { }
     expectBoardNotes(board).toMatchSnapshot('easy mode complete');
+
+    board = HardBoard.clone();
+    while (rules.canOnlyBeValue(board)) { }
+    expectBoardNotes(board).toMatchSnapshot('hard board stuck');
 });
