@@ -1,6 +1,9 @@
 export {}
 
 declare global {
+    const DEVELOPMENT: boolean;
+    const PRODUCTION: boolean;
+
     function parseInt(s: string, radix?: number): number;
     function parseInt(n: number): number;
 

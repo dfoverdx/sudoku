@@ -41,5 +41,8 @@
     "typescript": "^3.5.2",
     "webpack": "^4.35.3",
     "webpack-cli": "^3.3.5"
+  },
+  "optionalDependencies": {
+    "bitbar-webpack-progress-plugin": "^1.0.0"
   }
 }

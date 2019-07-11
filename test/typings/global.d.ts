@@ -1,13 +1,23 @@
 export {}
 
-declare module '../../src/game/board';
+// import Rewire from 'rewire';
 
-import Board from '../../src/game/board';
+declare class Board {}
 
 declare global {
-    function expectPrintBoardNotes(board: Board): jest.Matchers<string>;
+    // const rewire: typeof Rewire;
+
+    function expectBoardNotes(board: Board): jest.Matchers<string>;
+    function expectStringify(value: () => any, spaces?: number, replacer?: (string | number)[]): jest.Matchers<() => string>;
+    function expectStringify(value: any, spaces?: number, replacer?: (string | number)[]): jest.Matchers<string>;
 
     interface Window {
-        expectPrintBoardNotes(board: Board): jest.Matchers<string>;
+        readonly DEVELOPMENT: true;
+
+        // rewire: typeof Rewire;
+
+        // @ts-ignore
+        expectBoardNotes(board: Board): jest.Matchers<string>;
+        expectStringify(value: any, spaces?: number): jest.Matchers<string>;
     }
 }

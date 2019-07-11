@@ -8,5 +8,8 @@ module.exports = {
   "transform": {
     "^.+\\.tsx?$": "ts-jest"
   },
-  "globalSetup": "./test/setup.js",
+  "setupFiles": [
+    "./test/setup.js",
+  ],
+  "testEnvironment": "jsdom",
 }

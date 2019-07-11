@@ -1,6 +1,10 @@
 const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 const ExtractCSSPlugin = require('extract-css-chunks-webpack-plugin');
+var BitBarWebpackProgressPlugin = undefined;
+try {
+    BitBarWebpackProgressPlugin = require('bitbar-webpack-progress-plugin');
+} catch {}
 
 module.exports = function genConfig(_, options) {
     const NODE_ENV = (options.mode || process.env.NODE_ENV || 'production').trim(),
@@ -60,6 +64,11 @@ module.exports = function genConfig(_, options) {
             new ExtractCSSPlugin({
                 filename: PROD ? '[name].min.css' : '[name].css',
             }),
+            new webpack.DefinePlugin({
+                DEVELOPMENT: !PROD,
+                PRODUCTION: PROD
+            }),
+            BitBarWebpackProgressPlugin && new BitBarWebpackProgressPlugin(),
         ],
         externals: {
             react: 'React',

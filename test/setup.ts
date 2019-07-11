@@ -1,7 +1,27 @@
-import Board from '../src/game/board';
+// import Rewire from 'rewire';
 
-export default function setup() {
-    window.expectPrintBoardNotes = function(board: Board) {
-        return expect(board.print(true));
-    }
+declare var global: any;
+window = window || global;
+
+// window.rewire = Rewire;
+
+declare class Board {
+    print(notes?: boolean): string;
 }
+
+// @ts-ignore
+window.expectBoardNotes = function(board: Board) {
+    return expect(board.print(true));
+}
+
+// @ts-ignore
+window.expectStringify = function(value: (() => any) | any, spaces?: number, replacer?: (string | number)[]) {
+    if (typeof value === 'function') {
+        return expect(() => JSON.stringify(value(), replacer, spaces));
+    }
+
+    return expect(JSON.stringify(value, replacer, spaces));
+}
+
+// @ts-ignore
+window.DEVELOPMENT = true;

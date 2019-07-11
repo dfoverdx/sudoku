@@ -21,11 +21,13 @@
     // "rootDir": "./",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
     // "composite": true,                     /* Enable project compilation */
     // "tsBuildInfoFile": "./",               /* Specify file to store incremental compilation information */
-    // "removeComments": true,                /* Do not emit comments to output. */
+    "removeComments": true,                /* Do not emit comments to output. */
     "noEmit": true,                        /* Do not emit outputs. */
     // "importHelpers": true,                 /* Import emit helpers from 'tslib'. */
     "downlevelIteration": true,            /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
-    // "isolatedModules": true,               /* Transpile each file as a separate module (similar to 'ts.transpileModule'). */
+    // "isolatedModules": true,               /* Transpile each file as a separate module (similar to
+    // 'ts.transpileModule'). */
+    // "emitDeclarationOnly": true,
 
     /* Strict Type-Checking Options */
     "strict": true,                           /* Enable all strict type-checking options. */
@@ -51,7 +53,8 @@
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
     "typeRoots": [
       "./node_modules/@types",
-      "./typings"
+      "./typings",
+      "./test/typings",
     ],                       /* List of folders to include type definitions from. */
     // "types": [],                           /* Type declaration files to be included in compilation. */
     "allowSyntheticDefaultImports": true,  /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */
@@ -70,14 +73,16 @@
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
   "exclude": [
-    "**/__test__/**/*.ts",
-    "**/__mocks__/**/*.ts",
+    // "**/__test__/**/*.ts",
+    // "**/__mocks__/**/*.ts",
     "./node_modules",
-    "./coverage"
+    "./coverage",
+    "./dist"
   ],
   "include": [
     "./src/**/*.ts",
     "./src/**/*.tsx",
-    "./typings/**/*.d.ts"
+    "./typings/**/*.d.ts",
+    "./test/typings/**/*.d.ts"
   ]
 }
