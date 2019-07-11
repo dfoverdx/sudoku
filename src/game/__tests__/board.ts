@@ -1,8 +1,24 @@
 import Board, { genRegionIndices, getRegion } from '../board';
 import { CellIndex, Indices } from '../cell-values';
 
+// const rBoard = rewire('../board'),
+//     getRegion = rBoard.__get__('getRegion'),
+//     genRegionIndices = rBoard.__get__('genRegionIndicies');
+
+const EasyBoard = Board.parse(`
+    .4.9..38.
+    6......9.
+    29.3745..
+    .17.96.23
+    ...2...54
+    8.47.....
+    ..253.9.8
+    4...276.1
+    .81...27.
+`);
+
 it('constructs an empty board', () => {
-    expect(Board.Empty).toMatchSnapshot('empty board');
+    expectBoardNotes(Board.Empty).toMatchSnapshot('empty board');
 });
 
 describe('parse()', () => {
@@ -18,10 +34,7 @@ describe('parse()', () => {
             .........
             .........
         `);
-        expect(board).toMatchSnapshot('parsed board with one row');
-        expect(board.print(true)).toMatchSnapshot(
-            'one-row board printed notes'
-        );
+        expectBoardNotes(board).toMatchSnapshot('parsed board with one row');
 
         board = Board.parse(`
             123456789
@@ -34,20 +47,39 @@ describe('parse()', () => {
             .........
             .........
         `);
-        expect(board).toMatchSnapshot('parsed board with 3 rows');
+        expectBoardNotes(board).toMatchSnapshot('parsed board with 3 rows');
 
         board = Board.parse(`
+            .........
+            .........
+            .........
+            .........
+            ....9....
+            .........
+            .........
+            .........
+            .........
+        `);
+        expectBoardNotes(board).toMatchSnapshot(
+            'parsed board with 9 in middle'
+        );
+
+        expectBoardNotes(EasyBoard).toMatchSnapshot('parsed easy board');
+
+        board = Board.parse(`
+            .........
+            .........
+            .........
             .4.9..38.
             6......9.
             29.3745..
-            .17.96.23
-            ...2...54
-            8.47.....
-            ..253.9.8
-            4...276.1
-            .81...27.
+            .........
+            .........
+            .........
         `);
-        expect(board.print(true)).toMatchSnapshot('parsed easy board');
+        expectBoardNotes(board).toMatchSnapshot(
+            'parsed board with top 3 rows of easy board in middle'
+        );
     });
 
     it('throws errors when parsing bad board data', () => {
@@ -154,22 +186,22 @@ describe('parse()', () => {
 
 it('sets values properly', () => {
     let board = Board.Empty;
-    expect(board.setValue(0, 0, 1)).toBe(true);
-    expect(board.print(true)).toMatchSnapshot('board with [0, 0] set to 1');
+    expect(board.setValue([0, 0], 1)).toBe(true);
+    expectBoardNotes(board).toMatchSnapshot('board with [0, 0] set to 1');
 
-    expect(board.setValue(1, 2, 6)).toBe(true);
-    expect(board.print(true)).toMatchSnapshot(
+    expect(board.setValue([1, 2], 6)).toBe(true);
+    expectBoardNotes(board).toMatchSnapshot(
         'board with [0, 0] = 1, [1, 2] = 6'
     );
 
-    expect(board.setValue(4, 2, 7)).toBe(true);
-    expect(board.print(true)).toMatchSnapshot(
+    expect(board.setValue([4, 2], 7)).toBe(true);
+    expectBoardNotes(board).toMatchSnapshot(
         'board with [0, 0] = 1, [1, 2] = 6, [4, 2] = 7'
     );
 
     board = Board.Empty;
-    expect(board.setValue(0, 5, 6)).toBe(true);
-    expect(board.print(true)).toMatchSnapshot('board with [5, 6] set to 6');
+    expect(board.setValue([0, 5], 6)).toBe(true);
+    expectBoardNotes(board).toMatchSnapshot('board with [5, 6] set to 6');
 });
 
 describe('helper functions', () => {
@@ -198,22 +230,22 @@ describe('helper functions', () => {
             `"[[0,6],[0,7],[0,8],[1,6],[1,7],[1,8],[2,6],[2,7],[2,8]]"`
         );
         expect(genReg(3)).toMatchInlineSnapshot(
-            `"[[1,0],[1,1],[1,2],[2,0],[2,1],[2,2],[3,0],[3,1],[3,2]]"`
+            `"[[3,0],[3,1],[3,2],[4,0],[4,1],[4,2],[5,0],[5,1],[5,2]]"`
         );
         expect(genReg(4)).toMatchInlineSnapshot(
-            `"[[1,3],[1,4],[1,5],[2,3],[2,4],[2,5],[3,3],[3,4],[3,5]]"`
+            `"[[3,3],[3,4],[3,5],[4,3],[4,4],[4,5],[5,3],[5,4],[5,5]]"`
         );
         expect(genReg(5)).toMatchInlineSnapshot(
-            `"[[1,6],[1,7],[1,8],[2,6],[2,7],[2,8],[3,6],[3,7],[3,8]]"`
+            `"[[3,6],[3,7],[3,8],[4,6],[4,7],[4,8],[5,6],[5,7],[5,8]]"`
         );
         expect(genReg(6)).toMatchInlineSnapshot(
-            `"[[2,0],[2,1],[2,2],[3,0],[3,1],[3,2],[4,0],[4,1],[4,2]]"`
+            `"[[6,0],[6,1],[6,2],[7,0],[7,1],[7,2],[8,0],[8,1],[8,2]]"`
         );
         expect(genReg(7)).toMatchInlineSnapshot(
-            `"[[2,3],[2,4],[2,5],[3,3],[3,4],[3,5],[4,3],[4,4],[4,5]]"`
+            `"[[6,3],[6,4],[6,5],[7,3],[7,4],[7,5],[8,3],[8,4],[8,5]]"`
         );
         expect(genReg(8)).toMatchInlineSnapshot(
-            `"[[2,6],[2,7],[2,8],[3,6],[3,7],[3,8],[4,6],[4,7],[4,8]]"`
+            `"[[6,6],[6,7],[6,8],[7,6],[7,7],[7,8],[8,6],[8,7],[8,8]]"`
         );
     });
 });

@@ -2,6 +2,10 @@
 
 exports[`can be instantiated with a Set 1`] = `
 Cell {
+  "coord": Array [
+    0,
+    0,
+  ],
   "isValid": true,
   "notes": Array [
     true,
@@ -20,12 +24,20 @@ Cell {
 exports[`can be instantiated with a value 1`] = `
 Cell {
   "_value": 1,
+  "coord": Array [
+    0,
+    0,
+  ],
   "isValid": true,
 }
 `;
 
 exports[`can be instantiated with an array 1`] = `
 Cell {
+  "coord": Array [
+    0,
+    0,
+  ],
   "isValid": true,
   "notes": Array [
     true,
@@ -41,8 +53,12 @@ Cell {
 }
 `;
 
-exports[`can be instantiated without a value 1`] = `
+exports[`can be instantiated with just coordinates 1`] = `
 Cell {
+  "coord": Array [
+    0,
+    0,
+  ],
   "isValid": true,
   "notes": Array [
     true,
