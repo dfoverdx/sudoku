@@ -1,7 +1,7 @@
 import Board from '../board';
 // import { rules } from '../run';
 import run, { rules } from '../run';
-import { EasyBoard, FullBoard, HardBoard } from './boards/test-boards';
+import { EasyBoard, FullBoard, HardBoard, MediumBoard } from './boards/test-boards';
 
 // const rRun = rewire('run'),
 //     // @ts-ignore
@@ -79,4 +79,42 @@ test('ruleCanOnlyBeValue', () => {
     board = HardBoard.clone();
     while (rules.canOnlyBeValue(board)) { }
     expectBoardNotes(board).toMatchSnapshot('hard board stuck');
+});
+
+test('ruleOnlyCellCanBeValue', () => {
+    let board = Board.parse(`
+        .........
+        ........3
+        .....3...
+        .3.......
+        .........
+        .........
+        3........
+        .........
+        .........
+    `);
+
+    expect(rules.onlyCellCanBeValue(board)).toBe(true);
+    expectBoardNotes(board).toMatchSnapshot('[0, 2] = 3');
+
+    board = EasyBoard.clone();
+    expect(rules.onlyCellCanBeValue(board)).toBe(true);
+    expectBoardNotes(board).toMatchSnapshot('easy board');
+
+    while (rules.onlyCellCanBeValue(board)) { }
+    expectBoardNotes(board).toMatchSnapshot('easy board complete');
+
+    board = MediumBoard.clone();
+    expect(rules.onlyCellCanBeValue(board)).toBe(true);
+    expectBoardNotes(board).toMatchSnapshot('medium board');
+
+    while (rules.onlyCellCanBeValue(board)) { }
+    expectBoardNotes(board).toMatchSnapshot('medium board stuck');
+
+    board = HardBoard.clone();
+    expect(rules.onlyCellCanBeValue(board)).toBe(true);
+    expectBoardNotes(board).toMatchSnapshot('hard board');
+
+    while (rules.onlyCellCanBeValue(board)) { }
+    expectBoardNotes(board).toMatchSnapshot('hard board complete');
 });
