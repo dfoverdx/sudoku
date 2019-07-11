@@ -1,21 +1,10 @@
 import Board, { genRegionIndices, getRegion } from '../board';
 import { CellIndex, Indices } from '../cell-values';
+import { EasyBoard } from './boards/test-boards';
 
 // const rBoard = rewire('../board'),
 //     getRegion = rBoard.__get__('getRegion'),
 //     genRegionIndices = rBoard.__get__('genRegionIndicies');
-
-const EasyBoard = Board.parse(`
-    .4.9..38.
-    6......9.
-    29.3745..
-    .17.96.23
-    ...2...54
-    8.47.....
-    ..253.9.8
-    4...276.1
-    .81...27.
-`);
 
 it('constructs an empty board', () => {
     expectBoardNotes(Board.Empty).toMatchSnapshot('empty board');
