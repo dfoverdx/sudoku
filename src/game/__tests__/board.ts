@@ -1,6 +1,6 @@
 import Board, { genRegionIndices, getRegion } from '../board';
 import { CellIndex, Indices } from '../cell-values';
-import { EasyBoard } from './boards/test-boards';
+import { EasyBoard } from './__helpers__/test-boards';
 
 // const rBoard = rewire('../board'),
 //     getRegion = rBoard.__get__('getRegion'),

@@ -12,4 +12,8 @@ module.exports = {
     "./test/setup.js",
   ],
   "testEnvironment": "jsdom",
+  "testPathIgnorePatterns": [
+    "/node_modules/",
+    "/__helpers__/",
+  ]
 }

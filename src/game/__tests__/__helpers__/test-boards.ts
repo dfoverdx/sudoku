@@ -47,3 +47,15 @@ export const HardBoard = Board.parse(`
     .8.9..4..
     .1..7..2.
 `);
+
+export const ToughBoard = Board.parse(`
+    ...1.4...
+    6.75...2.
+    .54.2....
+    ..5...47.
+    2...3...5
+    .31...2..
+    ....7.13.
+    .7...19.8
+    ...8.3...
+`);
