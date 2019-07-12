@@ -12,7 +12,11 @@ export const FullBoard = Board.parse(`
     912345678
 `);
 
-export const EasyBoard = Board.parse(`
+/////////////////////////////
+// Boards from sudoku.com  //
+/////////////////////////////
+
+export const SiteEasyBoard = Board.parse(`
     .4.9..38.
     6......9.
     29.3745..
@@ -24,7 +28,7 @@ export const EasyBoard = Board.parse(`
     .81...27.
 `);
 
-export const MediumBoard = Board.parse(`
+export const SiteMediumBoard = Board.parse(`
     ...53..8.
     ...6.92..
     ..4.2..1.
@@ -36,7 +40,7 @@ export const MediumBoard = Board.parse(`
     ....74...
 `);
 
-export const HardBoard = Board.parse(`
+export const SiteHardBoard = Board.parse(`
     ...4.....
     .....8.96
     ....53.8.
@@ -48,7 +52,47 @@ export const HardBoard = Board.parse(`
     .1..7..2.
 `);
 
-export const ToughBoard = Board.parse(`
+export const SiteExpertBoard = Board.parse(`
+    ....3....
+    ..1.7694.
+    .8.9.....
+    .4...1...
+    .28.9....
+    ......16.
+    7..8.....
+    ......4.2
+    .9..1.3..
+`);
+
+///////////////////////////////////////////
+// Boards from Sudoku Master Edition app //
+///////////////////////////////////////////
+
+export const AppEasyBoard = Board.parse(`
+    ..75...8.
+    .16.487..
+    49..7.52.
+    ..5.629..
+    17...4...
+    9..78.41.
+    ..4.19.6.
+    6.1...2..
+    .....6..5
+`);
+
+export const AppModerateBoard = Board.parse(`
+    7..3..286
+    .....2..5
+    25.9.....
+    .14.9....
+    3297.45..
+    ..72...94
+    9.3....71
+    .8....65.
+    ........3
+`);
+
+export const AppToughBoard = Board.parse(`
     ...1.4...
     6.75...2.
     .54.2....
@@ -58,4 +102,28 @@ export const ToughBoard = Board.parse(`
     ....7.13.
     .7...19.8
     ...8.3...
+`);
+
+export const AppExpertBoard = Board.parse(`
+    9.6....8.
+    5.1.7....
+    .2...9..5
+    4..95....
+    ..98342..
+    ....27..9
+    1..7...9.
+    ....8.3.1
+    .6....7.8
+`);
+
+export const AppMasterBoard = Board.parse(`
+    ........1
+    ..6..19..
+    83.7...5.
+    4.71.....
+    2..5.7..9
+    .....48.5
+    .4...3.87
+    ..29..1..
+    6........
 `);

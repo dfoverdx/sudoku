@@ -1,6 +1,8 @@
 import '../helpers/array-extensions';
 import Cell, { cellIs, ValueCell } from './cell';
-import { assertValidCoordinates, assertValidValue, CellCoord, CellIndex, CellValue, Indices } from './cell-values';
+import {
+    AllCellValues, assertValidCoordinates, assertValidValue, CellCoord, CellIndex, CellValue, Indices
+} from './cell-values';
 
 type RegionIndices = [
     CellCoord, CellCoord, CellCoord,
@@ -13,10 +15,11 @@ type BoardRegionIndices = [
     RegionIndices, RegionIndices, RegionIndices
 ];
 
-export type Row = [Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell];
-export type Col = Row;
-export type Region = Row;
-export type Cells<T extends Row | Col | Region = Row> = [T, T, T, T, T, T, T, T, T];
+export type CellGroup = [Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell];
+export type Row = CellGroup;
+export type Column = CellGroup;
+export type Region = CellGroup;
+export type Cells<T extends Row | Column | Region = Row> = [T, T, T, T, T, T, T, T, T];
 
 /**
  * Represents a 9x9 Sudoku board.
@@ -65,7 +68,7 @@ export default class Board {
     /**
      * Returns an array of the columns of the board.
      */
-    get cols(): Cells<Col> {
+    get columns(): Cells<Column> {
         return Indices.map(c => this.values[c as number]) as Cells<Row>;
     }
 
@@ -79,23 +82,76 @@ export default class Board {
     }
 
     /**
-     *
-     * @param row
-     * @param value
+     * Validates that there are no illegal cell values.  Marks any invalid cell as invalid.  Returns true if there are
+     * no invalid cells, else false.
+     */
+    validate(): boolean {
+        function hasAtLeast2(cells: CellGroup, val: CellValue): false | Cell[] {
+            const valCells = cells.filter(c => c.value === val);
+            if (valCells.length > 1) {
+                return valCells;
+            }
+
+            return false;
+        }
+
+        function setDupsInvalid(cells: Cell[]): void {
+            for (const cell of cells) {
+                if (!cellIs.fixed(cell)) {
+                    cell.isValid = false;
+                }
+            }
+        }
+
+        const rows = this.rows,
+            cols = this.columns,
+            regs = this.regions;
+
+        let isValid = true;
+
+        for (const val of AllCellValues) {
+            for (const cellList of [rows, cols, regs]) {
+                for (const cells of cellList) {
+                    const dups = hasAtLeast2(cells, val);
+                    if (dups) {
+                        setDupsInvalid(dups);
+                        isValid = false;
+                    }
+                }
+            }
+        }
+
+        return isValid;
+    }
+
+    /**
+     * Sets the value of the cell at the specified coordinates.  Returns whether the cell is valid.
      */
     setValue(coord: CellCoord, value: CellValue): boolean {
         assertValidCoordinates(coord);
         assertValidValue(value);
 
-        let cell = this.cellAt(coord);
+        const cell = this.cellAt(coord);
         cell.setValue(value);
         this.applyCellValueToNotes(cell as ValueCell);
         return cell.isValid;
     }
 
     /**
-     * Returns a new board with the given values, treating any cell with a value--whether fixed or not--as a fixed cell
-     * in the new board.
+     * Unsets the value of the cell at the specified coordinates.
+     */
+    unsetValue(coord: CellCoord): void {
+        assertValidCoordinates(coord);
+
+        const cell = this.cellAt(coord);
+        cell.unsetValue();
+
+        // reset the notes based on this unset value
+        this.initNotes();
+    }
+
+    /**
+     * Returns a new board with the given values.
      */
     clone(): Board {
         for (const cell of this.cells()) {
@@ -108,9 +164,11 @@ export default class Board {
         return new Board(this.rows.map(row => row.map(cell => {
             if (cellIs.notes(cell)) {
                 return new Cell(cell.coord, cell.notes);
+            } else if (cellIs.fixed) {
+                return new Cell(cell.coord, cell.value!);
             }
 
-            return new Cell(cell.coord, cell.value!);
+            return new Cell(cell.coord, cell.value!, false);
         })) as Cells);
     }
 

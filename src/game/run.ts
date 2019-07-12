@@ -52,7 +52,7 @@ function ruleOnlyCellCanBeValue(board: Board): boolean {
             }
         }
 
-        for (const col of board.cols) {
+        for (const col of board.columns) {
             idx = col.indexOfOnly(cell => cell.canBe(testVal));
             if (idx !== -1 && cellIs.notes(col[idx])) {
                 board.setValue(col[idx].coord, testVal);

@@ -1,10 +1,10 @@
 import Board, { genRegionIndices, getRegion } from '../board';
 import { CellIndex, Indices } from '../cell-values';
-import { EasyBoard } from './__helpers__/test-boards';
+import { SiteEasyBoard } from './__helpers__/test-boards';
 
-// const rBoard = rewire('../board'),
-//     getRegion = rBoard.__get__('getRegion'),
-//     genRegionIndices = rBoard.__get__('genRegionIndicies');
+afterEach(() => {
+    jest.restoreAllMocks();
+});
 
 it('constructs an empty board', () => {
     expectBoardNotes(Board.Empty).toMatchSnapshot('empty board');
@@ -53,7 +53,7 @@ describe('parse()', () => {
             'parsed board with 9 in middle'
         );
 
-        expectBoardNotes(EasyBoard).toMatchSnapshot('parsed easy board');
+        expectBoardNotes(SiteEasyBoard).toMatchSnapshot('parsed easy board');
 
         board = Board.parse(`
             .........
@@ -138,40 +138,40 @@ describe('parse()', () => {
     });
 });
 
-// it('clones a board', () => {
-//     const board = Board.parse(`
-//             123456789
-//             .........
-//             .........
-//             .........
-//             .........
-//             .........
-//             .........
-//             .........
-//             .........
-//         `),
-//         clone = board.clone();
+it('clones a board', () => {
+    const board = Board.parse(`
+            123456789
+            .........
+            .........
+            .........
+            .........
+            .........
+            .........
+            .........
+            .........
+        `),
+        clone = board.clone();
 
-//     expect(clone).toEqual(board);
-//     expect(clone.print()).toMatchInlineSnapshot(`
-//                 "123|456|789
-//                 ...|...|...
-//                 ...|...|...
-//                 ---+---+---
-//                 ...|...|...
-//                 ...|...|...
-//                 ...|...|...
-//                 ---+---+---
-//                 ...|...|...
-//                 ...|...|...
-//                 ...|...|..."
-//         `);
+    expect(clone).toEqual(board);
+    expect(clone.print()).toMatchInlineSnapshot(`
+        "123|456|789
+        ...|...|...
+        ...|...|...
+        ---+---+---
+        ...|...|...
+        ...|...|...
+        ...|...|...
+        ---+---+---
+        ...|...|...
+        ...|...|...
+        ...|...|..."
+    `);
 
-//     board.setValue(1, 0, 4);
-//     expect(clone).not.toEqual(board);
-//     expect(clone.values[1][0].value).toBe(4);
-//     expect(board.values[1][0].value).toBeUndefined();
-// });
+    clone.setValue([1, 0], 4);
+    expect(clone).not.toEqual(board);
+    expect(clone.cellAt(1, 0).value).toBe(4);
+    expect(board.cellAt(1, 0).value).toBeUndefined();
+});
 
 it('sets values properly', () => {
     let board = Board.Empty;
@@ -191,6 +191,28 @@ it('sets values properly', () => {
     board = Board.Empty;
     expect(board.setValue([0, 5], 6)).toBe(true);
     expectBoardNotes(board).toMatchSnapshot('board with [5, 6] set to 6');
+});
+
+describe('validate()', () => {
+    it('returns true for a valid board', () => {
+        const board = SiteEasyBoard.clone();
+        expect(board.validate()).toBe(true);
+    });
+
+    it('returns false if a board is invalid, and sets the cells to be invalid', () => {
+        const board = SiteEasyBoard.clone(),
+            error = jest.spyOn(console, 'error'),
+            cell = board.cellAt(1, 1);
+
+        cell.setValue(4);
+        expect(error).toHaveBeenCalledTimes(1);
+        expect(cell.isValid).toBe(false);
+
+        cell.isValid = true;
+
+        expect(board.validate()).toBe(false);
+        expect(cell.isValid).toBe(false);
+    });
 });
 
 describe('helper functions', () => {

@@ -24,9 +24,9 @@ export default class Cell {
     constructor(coord: CellCoord);
 
     /**
-     * Constructs a `FixedCell` at the given cell coordinates with the given value.
+     * Constructs a `ValueCell` or a `FixedCell` at the given cell coordinates with the given value.
      */
-    constructor(coord: CellCoord, value: CellValue);
+    constructor(coord: CellCoord, value: CellValue, fixed?: boolean);
 
     /**
      * Constructs a `NotesCell` at the given cell coordinates with the given set of available values.
@@ -39,7 +39,8 @@ export default class Cell {
     constructor(coord: CellCoord, notes: Notes);
     constructor(
         public readonly coord: CellCoord,
-        val: CellValue | Notes | Set<CellValue> = AllNotes.slice() as Notes
+        val: CellValue | Notes | Set<CellValue> = AllNotes.slice() as Notes,
+        fixed?: boolean
     ) {
         assertValidCoordinates(coord);
 
@@ -57,6 +58,10 @@ export default class Cell {
             }
 
             this._value = val;
+
+            if (fixed === false) {
+                this.notes = new Array(9).fill(false) as Notes;
+            }
         }
     }
 
@@ -83,25 +88,31 @@ export default class Cell {
      * Sets the value of the cell.
      */
     public setValue(val: CellValue) {
-        if (val) {
-            assertValidValue(val);
+        assertValidValue(val);
 
-            if (this._value) {
-                if (val !== this._value) {
-                    throw new Error(`Cannot set cell value to ${val}.  It has already been set to ${this._value}.`);
-                } else {
-                    console.warn(`Attempting to set cell value to ${val} after it has already been set.`);
-                }
-            } else if (!this.canBe(val)) {
-                console.error(`Cannot set cell to value ${val}.`);
-                this.isValid = false;
+        if (this._value) {
+            if (val !== this._value) {
+                throw new Error(`Cannot set cell value to ${val}.  It has already been set to ${this._value}.`);
+            } else {
+                console.warn(`Attempting to set cell value to ${val} after it has already been set.`);
             }
+        } else if (!this.canBe(val)) {
+            console.error(`Cannot set cell to value ${val}.`);
+            this.isValid = false;
         }
 
         this._value = val;
         if (this.notes && this._value) {
             this.notes.fill(false);
         }
+    }
+
+    public unsetValue(): void {
+        if (cellIs.fixed(this)) {
+            throw new Error(`Attempting to unset the value of a fixed cell.`);
+        }
+
+        this._value = undefined;
     }
 
     /**
@@ -119,11 +130,11 @@ export default class Cell {
      * If the cell has only one available value in the notes, returns that value.  Else, returns false.
      */
     public mustBe(): CellValue | false {
-        if (!this.notes) {
-            return this._value as CellValue;
+        if (cellIs.value(this)) {
+            return this._value!;
         }
 
-        const idx = this.notes.indexOfOnly<CellIndex>(v => v);
+        const idx = this.notes!.indexOfOnly<CellIndex>(v => v);
         if (idx === -1) {
             return false;
         }
@@ -135,12 +146,12 @@ export default class Cell {
      * Removes the specified value from the cell's notes.
      */
     public removeNote(value: CellValue): boolean {
-        if (!this.notes) {
-            return false;
+        if (cellIs.fixed(this)) {
+            throw new Error(`Cannot remove a note from a fixed cell.`);
         }
 
-        let oldVal = this.notes[value - 1];
-        this.notes[value - 1] = false;
+        let oldVal = this.notes![value - 1];
+        this.notes![value - 1] = false;
         return oldVal;
     }
 
@@ -176,4 +187,4 @@ export const cellIs = {
     value(cell: Cell): cell is ValueCell {
         return !!cell.value;
     }
-}
+};

@@ -1,13 +1,6 @@
 import Board from '../board';
-// import { rules } from '../run';
 import run, { rules } from '../run';
-import { EasyBoard, FullBoard, HardBoard, MediumBoard } from './__helpers__/test-boards';
-
-// const rRun = rewire('run'),
-//     // @ts-ignore
-//     ruleCanOnlyBeValue = rRun.__get__('ruleCanOnlyBeValue'),
-//     // @ts-ignore
-//     ruleOnlyCellCanBeValue = rRun.__get__('ruleOnlyCellCanBeValue');
+import { FullBoard, SiteEasyBoard, SiteHardBoard, SiteMediumBoard } from './__helpers__/test-boards';
 
 describe('run()', () => {
     it('returns true if the board is complete', () => {
@@ -123,14 +116,14 @@ test('ruleCanOnlyBeValue', () => {
     expect(rules.canOnlyBeValue(board)).toBe(true);
     expectBoardNotes(board).toMatchSnapshot('multiple gets in one go');
 
-    board = EasyBoard.clone();
+    board = SiteEasyBoard.clone();
     expect(rules.canOnlyBeValue(board)).toBe(true);
     expectBoardNotes(board).toMatchSnapshot('easy mode');
 
     while (rules.canOnlyBeValue(board)) { }
     expectBoardNotes(board).toMatchSnapshot('easy mode complete');
 
-    board = HardBoard.clone();
+    board = SiteHardBoard.clone();
     while (rules.canOnlyBeValue(board)) { }
     expectBoardNotes(board).toMatchSnapshot('hard board stuck');
 });
@@ -151,21 +144,21 @@ test('ruleOnlyCellCanBeValue', () => {
     expect(rules.onlyCellCanBeValue(board)).toBe(true);
     expectBoardNotes(board).toMatchSnapshot('[0, 2] = 3');
 
-    board = EasyBoard.clone();
+    board = SiteEasyBoard.clone();
     expect(rules.onlyCellCanBeValue(board)).toBe(true);
     expectBoardNotes(board).toMatchSnapshot('easy board');
 
     while (rules.onlyCellCanBeValue(board)) { }
     expectBoardNotes(board).toMatchSnapshot('easy board complete');
 
-    board = MediumBoard.clone();
+    board = SiteMediumBoard.clone();
     expect(rules.onlyCellCanBeValue(board)).toBe(true);
     expectBoardNotes(board).toMatchSnapshot('medium board');
 
     while (rules.onlyCellCanBeValue(board)) { }
     expectBoardNotes(board).toMatchSnapshot('medium board stuck');
 
-    board = HardBoard.clone();
+    board = SiteHardBoard.clone();
     expect(rules.onlyCellCanBeValue(board)).toBe(true);
     expectBoardNotes(board).toMatchSnapshot('hard board');
 
