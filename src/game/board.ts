@@ -62,14 +62,14 @@ export default class Board {
      * Returns an array of the rows of the board.
      */
     get rows(): Cells<Row> {
-        return Indices.map(r => this.values[r as number]) as Cells<Row>;
+        return Indices.map(r => this.values[r]) as Cells<Row>;
     }
 
     /**
      * Returns an array of the columns of the board.
      */
     get columns(): Cells<Column> {
-        return Indices.map(c => this.values[c as number]) as Cells<Row>;
+        return Indices.map(c => Indices.map(r => this.values[r][c])) as Cells<Row>;
     }
 
     /**
@@ -79,6 +79,18 @@ export default class Board {
         return RegionsIndicies.map(indicies =>
             indicies.map(([r, c]) =>
                 this.values[r as number][c as number])) as Cells<Region>;
+    }
+
+    row(rowIdx: CellIndex): Row {
+        return this.values[rowIdx];
+    }
+
+    column(colIdx: CellIndex): Column {
+        return Indices.map(r => this.values[r][colIdx]) as Column;
+    }
+
+    region(regIdx: CellIndex): Region {
+        return Array.from(genRegionIndices(regIdx)).map(([r, c]) => this.values[r][c]) as Region;
     }
 
     /**

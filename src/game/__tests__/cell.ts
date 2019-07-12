@@ -83,22 +83,22 @@ it('throws an error if instantiated with an invalid value', () => {
 
     // invalid value arguments
     expect(nc([0, 0], 'abc')).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid 'val' specified: abc"`
+        `"Value '\\"abc\\"' is invalid.  It must be an integer between 1 and 9."`
     );
     expect(nc([0, 0], [])).toThrowErrorMatchingInlineSnapshot(
         `"Notes array must contain 9 elements.  Found 0."`
     );
     expect(nc([0, 0], null)).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid 'val' specified: null"`
+        `"Value 'null' is invalid.  It must be an integer between 1 and 9."`
     );
     expect(nc([0, 0], 10)).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid 'val' specified: 10"`
+        `"Value '10' is invalid.  It must be an integer between 1 and 9."`
     );
     expect(nc([0, 0], -1)).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid 'val' specified: -1"`
+        `"Value '-1' is invalid.  It must be an integer between 1 and 9."`
     );
     expect(nc([0, 0], 0)).toThrowErrorMatchingInlineSnapshot(
-        `"Invalid 'val' specified: 0"`
+        `"Value '0' is invalid.  It must be an integer between 1 and 9."`
     );
 });
 

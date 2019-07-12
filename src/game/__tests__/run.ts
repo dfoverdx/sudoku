@@ -1,6 +1,8 @@
 import Board from '../board';
 import run, { rules } from '../run';
-import { FullBoard, SiteEasyBoard, SiteHardBoard, SiteMediumBoard } from './__helpers__/test-boards';
+import {
+    AppExpertBoard, AppMasterBoard, AppToughBoard, FullBoard, SiteEasyBoard, SiteHardBoard
+} from './__helpers__/test-boards';
 
 describe('run()', () => {
     it('returns true if the board is complete', () => {
@@ -11,33 +13,6 @@ describe('run()', () => {
         expect(run(Board.Empty)).toBe(false);
     }, 2000);
 
-    it('can beat hard difficulty level by combining rules', () => {
-        const
-            board = Board.parse(`
-                ..7.....1
-                .....4..2
-                ...1...7.
-                .2..96...
-                .5....63.
-                ..9.5.42.
-                9.8..1...
-                ....49...
-                6....7.54
-            `),
-            rule1Board = board.clone(),
-            rule2Board = board.clone();
-
-        // gets stuck on rule 1
-        while (rules.canOnlyBeValue(rule1Board)) { }
-        expectBoardNotes(rule1Board).toMatchSnapshot('gets stuck with just rule 1');
-
-        while (rules.onlyCellCanBeValue(rule2Board)) { }
-        expectBoardNotes(rule2Board).toMatchSnapshot('gets stuck with just rule 2');
-
-        expect(run(board)).toBe(true);
-        expectBoardNotes(board).toMatchSnapshot('complete board');
-    });
-
     it('can beat tough difficulty level by combining rules', () => {
         const board = Board.parse(`
                 .9......3
@@ -46,7 +21,7 @@ describe('run()', () => {
                 ..79..2..
                 ..87639..
                 ..6..18..
-                ..4832...
+                ...832...
                 13....4..
                 6......7.
             `),
@@ -61,8 +36,20 @@ describe('run()', () => {
         expectBoardNotes(rule2Board).toMatchSnapshot('gets stuck with just rule 2');
 
         run(board);
-        // expect(run(board)).toBe(true);
+        expect(run(board)).toBe(true);
         expectBoardNotes(board).toMatchSnapshot('complete board');
+    });
+
+    it('does its best on an expert difficulty level', () => {
+        const board = AppExpertBoard.clone();
+        run(board);
+        expectBoardNotes(board).toMatchSnapshot('expert board stuck');
+    });
+
+    it('does its best on a master difficulty level', () => {
+        const board = AppMasterBoard.clone();
+        run(board);
+        expectBoardNotes(board).toMatchSnapshot('master board stuck');
     });
 });
 
@@ -151,12 +138,12 @@ test('ruleOnlyCellCanBeValue', () => {
     while (rules.onlyCellCanBeValue(board)) { }
     expectBoardNotes(board).toMatchSnapshot('easy board complete');
 
-    board = SiteMediumBoard.clone();
+    board = AppToughBoard.clone();
     expect(rules.onlyCellCanBeValue(board)).toBe(true);
-    expectBoardNotes(board).toMatchSnapshot('medium board');
+    expectBoardNotes(board).toMatchSnapshot('tough board');
 
     while (rules.onlyCellCanBeValue(board)) { }
-    expectBoardNotes(board).toMatchSnapshot('medium board stuck');
+    expectBoardNotes(board).toMatchSnapshot('tough board stuck');
 
     board = SiteHardBoard.clone();
     expect(rules.onlyCellCanBeValue(board)).toBe(true);
@@ -164,4 +151,21 @@ test('ruleOnlyCellCanBeValue', () => {
 
     while (rules.onlyCellCanBeValue(board)) { }
     expectBoardNotes(board).toMatchSnapshot('hard board complete');
+});
+
+test('ruleValueMustBeInRowOrColumnOfRegion', () => {
+    let board = Board.parse(`
+        .23......
+        .56......
+        .89......
+        .........
+        .........
+        .........
+        .........
+        .........
+        .........
+    `);
+
+    expect(rules.valueMustBeInRowOrColumnOfRegion(board)).toBe(true);
+    expectBoardNotes(board).toMatchSnapshot();
 });

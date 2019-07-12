@@ -1,4 +1,5 @@
 import '../helpers/array-extensions';
+import { getRegion } from './board';
 import { assertValidCoordinates, assertValidValue, CellCoord, CellIndex, CellValue, Indices } from './cell-values';
 
 export type Notes = [boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean];
@@ -52,11 +53,8 @@ export default class Cell {
             }
 
             this.notes = val.slice() as Notes;
-        } else if (val !== undefined) {
-            if (!val || isNaN(val) || val < 1 || val > 9 || val !== parseInt(val)) {
-                throw new Error(`Invalid 'val' specified: ${val}`);
-            }
-
+        } else {
+            assertValidValue(val);
             this._value = val;
 
             if (fixed === false) {
@@ -76,6 +74,18 @@ export default class Cell {
     public readonly notes?: Notes;
 
     private _value?: CellValue;
+
+    public get row() {
+        return this.coord[0];
+    }
+
+    public get column() {
+        return this.coord[1];
+    }
+
+    public get region() {
+        return getRegion(this.coord);
+    }
 
     /**
      * The value of the cell.  Is `undefined` if this cell is a `NotesCell`.
