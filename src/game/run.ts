@@ -1,15 +1,45 @@
-import Board from './board';
-import { cellIs } from './cell';
-import { AllCellValues, CellIndex } from './cell-values';
+import Board, { CellGroup } from './board';
+import { cellIs, CellType, NotesCell } from './cell';
+import { AllCellValues, CellCoord, CellIndex, CellValue } from './cell-values';
 
-export default function run(board: Board): boolean {
+export type GuessResult = [Board, [CellCoord, CellValue]];
+
+export default function run(board: Board, guess = false): boolean {
     let madeChange = true;
     while (madeChange) {
         madeChange = [
             canOnlyBeValueRule(board),
             onlyCellCanBeValueRule(board),
             valueMustBeInRowOrColumnOfRegionRule(board),
+            // setsOfValuesRule(board),
         ].some(mc => mc);
+    }
+
+    if (guess && !board.isComplete) {
+        let result = makeGuess(board);
+
+        if (!result) {
+            return false;
+        }
+
+        let guessed: [CellCoord, CellValue],
+            clone: Board;
+        do {
+            [clone, guessed] = result;
+            console.info(`Guessing value ${guessed[1]} at ${JSON.stringify(guessed[0])}`);
+            if (run(clone, true)) {
+                for (const cell of board.cells) {
+                    if (cellIs.notes(cell)) {
+                        let cloneCell = clone.cellAt(cell.coord);
+                        board.setValue(cloneCell.coord, cloneCell.value!);
+                    }
+                }
+
+                return true;
+            }
+        } while ((result = makeGuess(board, guessed)) !== false);
+
+        return false;
     }
 
     return board.isComplete;
@@ -19,12 +49,13 @@ export const rules = {
     canOnlyBeValue: canOnlyBeValueRule,
     onlyCellCanBeValue: onlyCellCanBeValueRule,
     valueMustBeInRowOrColumnOfRegion: valueMustBeInRowOrColumnOfRegionRule,
+    // setsOfValues: setsOfValuesRule,
 };
 
 function canOnlyBeValueRule(board: Board): boolean {
     let madeChange = false;
 
-    for (const cell of board.cells()) {
+    for (const cell of board.cells) {
         if (cell.value) {
             continue;
         }
@@ -126,4 +157,152 @@ function valueMustBeInRowOrColumnOfRegionRule(board: Board): boolean {
     }
 
     return madeChange;
+}
+
+// export function setsOfValuesRule(board: Board): boolean {
+//     let madeChange = false;
+
+//     const rows = board.rows,
+//         cols = board.columns,
+//         regs = board.regions;
+
+//     for (const groups of [rows, cols, regs]) {
+//         for (const group of groups) {
+//             const finishedCells = new Set<Cell>(),
+//                 numOpen = numOpenSpaces(group);
+
+//             for (const cell of group) {
+//                 if (finishedCells.has(cell)) {
+//                     continue;
+//                 }
+
+//                 const notesSet = cell.notesSet;
+//                 if (!notesSet) {
+//                     finishedCells.add(cell);
+//                     continue;
+//                 }
+
+//                 // checking for < 2 is not strictly necessary but could optimize in some cases
+//                 if (notesSet.size === numOpen || notesSet.size < 2) {
+//                     finishedCells.add(cell);
+//                     continue;
+//                 }
+
+//                 for (let numNotes = 2; numNotes < notesSet.size - 1; numNotes++) {
+
+//                 }
+//             }
+//         }
+//     }
+
+//     return madeChange;
+// }
+
+
+export function makeGuess(board: Board): [Board, [CellCoord, CellValue]] | false;
+export function makeGuess(board: Board, [cellCoord, prevGuess]: [CellCoord, CellValue]):
+    [Board, [CellCoord, CellValue]] | false;
+export function makeGuess(
+    board: Board,
+    [cellCoord, prevGuess]: [CellCoord, CellValue] | [undefined, undefined] = [undefined, undefined]
+): [Board, [CellCoord, CellValue]] | false {
+    // @ts-ignore
+    let minNotes: CellIndex = 10,
+        minCell: CellType | undefined = undefined,
+        minCellNotes: CellValue[],
+        guess: CellValue,
+        clone = board.clone();
+
+    if (!cellCoord) {
+        for (const cell of clone.cells) {
+            if (cellIs.value(cell)) {
+                continue;
+            }
+
+            if (!cell.isValid) {
+                return false;
+            }
+
+            const notes = cell.notesArray;
+            if (notes.length === 0) {
+                board.cellAt(cell.coord).isValid = false;
+                return false;
+            }
+
+            if (notes.length < minNotes) {
+                minNotes = notes.length as CellIndex;
+                minCell = cell;
+                minCellNotes = notes;
+            }
+        }
+
+        if (!minCell) {
+            throw new Error(`Somehow got through guess() without finding a minCell.  Should have returned false.`);
+        }
+
+        guess = minCellNotes![0];
+    } else {
+        minCell = board.cellAt(cellCoord) as NotesCell;
+        guess = minCell.notesArray.filter(v => v > (prevGuess || 0))[0];
+
+        if (!guess) {
+            return false;
+        }
+    }
+
+    clone.setValue(minCell.coord, guess);
+    return [clone, [minCell.coord, guess]];
+}
+
+// /**
+//  * Recursively finds sets of cells containing exactly the same notes as the given cell.
+//  *
+//  * @param cell The cell being examined.
+//  * @param maxNumNotes The maximum number of notes this rule applies to for the given cell group.
+//  * @param group The group of cells to examine.
+//  * @param idx The current cell index to examine.
+//  * @param notesSet The current set of notes being examined.
+//  * @param finishedCells Cells that have already been examined and may be skipped.
+//  */
+// export function findCompatibleSets(
+//     cell: Cell,
+//     maxNumNotes: 2 | 3 | 4 | 5 | 6 | 7 | 8,
+//     group: CellGroup,
+//     idx: CellIndex,
+//     cellSet: Set<Cell>,
+//     notesSet: NotesSet,
+//     finishedCells: Set<Cell>
+// ): [Set<Cell>, NotesSet] | undefined {
+//     let nextCell = group[idx++],
+//         nextNotesSet: NotesSet;
+
+//     while (finishedCells.has(cell) ||
+//            nextCell === cell ||
+//            !cellIs.notes(nextCell) ||
+//            (nextNotesSet = nextCell.notesSet).size > maxNumNotes ||
+//            nextNotesSet.size < 2) {
+//         if (idx < 9) {
+//             nextCell = group[idx++];
+//         } else if (cellSet.size) {
+//             return [cellSet, notesSet];
+//         } else {
+//             return undefined;
+//         }
+//     }
+
+//     return undefined;
+// }
+
+// function isSubset<T>(superSet: Set<T>, subset: Set<T>): boolean {
+//     for (const t of subset) {
+//         if (!superSet.has(t)) {
+//             return false;
+//         }
+//     }
+
+//     return true;
+// }
+
+export function numOpenSpaces(cellGroup: CellGroup): 0 | CellValue {
+    return cellGroup.filter(c => cellIs.notes(c)).length as 0 | CellValue;
 }

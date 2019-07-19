@@ -1,5 +1,5 @@
 import '../helpers/array-extensions';
-import Cell, { cellIs, ValueCell } from './cell';
+import Cell, { cellIs, CellType, ValueCell } from './cell';
 import {
     AllCellValues, assertValidCoordinates, assertValidValue, CellCoord, CellIndex, CellValue, Indices
 } from './cell-values';
@@ -15,7 +15,7 @@ type BoardRegionIndices = [
     RegionIndices, RegionIndices, RegionIndices
 ];
 
-export type CellGroup = [Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell];
+export type CellGroup = [CellType, CellType, CellType, CellType, CellType, CellType, CellType, CellType, CellType];
 export type Row = CellGroup;
 export type Column = CellGroup;
 export type Region = CellGroup;
@@ -38,7 +38,7 @@ export default class Board {
      * Returns whether the board is filled or not.
      */
     get isComplete(): boolean {
-        for (const cell of this.cells()) {
+        for (const cell of this.cells) {
             if (!cell.value || !cell.isValid) {
                 return false;
             }
@@ -50,12 +50,15 @@ export default class Board {
     /**
      * Iterates through all cells in board in row-major order.
      */
-    *cells(): IterableIterator<Cell> {
-        for (const row of this.rows) {
-            for (const cell of row) {
-                yield cell;
+    get cells(): IterableIterator<CellType> {
+        const self = this;
+        return (function* () {
+            for (const row of self.rows) {
+                for (const cell of row) {
+                    yield cell as CellType;
+                }
             }
-        }
+        })();
     }
 
     /**
@@ -166,7 +169,7 @@ export default class Board {
      * Returns a new board with the given values.
      */
     clone(): Board {
-        for (const cell of this.cells()) {
+        for (const cell of this.cells) {
             if (!cell.isValid) {
                 console.error(`Cloning board with invalid cells.`);
                 break;
@@ -252,7 +255,7 @@ export default class Board {
      * Initializes the notes of the board given the fixed cells.
      */
     private initNotes(): void {
-        for (const cell of this.cells()) {
+        for (const cell of this.cells) {
             if (cellIs.fixed(cell)) {
                 this.applyCellValueToNotes(cell);
             }

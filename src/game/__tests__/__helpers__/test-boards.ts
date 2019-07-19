@@ -10,7 +10,7 @@ export const FullBoard = Board.parse(`
     345678912
     678912345
     912345678
-`);
+`);  
 
 /////////////////////////////
 // Boards from sudoku.com  //
@@ -126,4 +126,16 @@ export const AppMasterBoard = Board.parse(`
     .4...3.87
     ..29..1..
     6........
+`);
+
+export const AppMasterBoard2 = Board.parse(`
+    .65..27.1
+    4..1.....
+    ..7.86.2.
+    ...3.....
+    6..819..3
+    .....5...
+    .4.95.3..
+    .....1..9
+    7.92..54.
 `);

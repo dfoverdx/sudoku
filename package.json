@@ -23,6 +23,7 @@
     "@types/terser-webpack-plugin": "^1.2.1",
     "@types/typescript": "^2.0.0",
     "@types/webpack": "^4.4.34",
+    "ansi-colors": "^4.1.1",
     "array-flat-polyfill": "^1.0.1",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.6",

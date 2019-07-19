@@ -7,7 +7,7 @@ afterEach(() => {
 });
 
 it('constructs an empty board', () => {
-    expectBoardNotes(Board.Empty).toMatchSnapshot('empty board');
+    expectBoardNotesSnapshot(Board.Empty, 'empty board');
 });
 
 describe('parse()', () => {
@@ -23,7 +23,7 @@ describe('parse()', () => {
             .........
             .........
         `);
-        expectBoardNotes(board).toMatchSnapshot('parsed board with one row');
+        expectBoardNotesSnapshot(board, 'parsed board with one row');
 
         board = Board.parse(`
             123456789
@@ -36,7 +36,7 @@ describe('parse()', () => {
             .........
             .........
         `);
-        expectBoardNotes(board).toMatchSnapshot('parsed board with 3 rows');
+        expectBoardNotesSnapshot(board, 'parsed board with 3 rows');
 
         board = Board.parse(`
             .........
@@ -53,7 +53,7 @@ describe('parse()', () => {
             'parsed board with 9 in middle'
         );
 
-        expectBoardNotes(SiteEasyBoard).toMatchSnapshot('parsed easy board');
+        expectBoardNotesSnapshot(SiteEasyBoard, 'parsed easy board');
 
         board = Board.parse(`
             .........
@@ -176,7 +176,7 @@ it('clones a board', () => {
 it('sets values properly', () => {
     let board = Board.Empty;
     expect(board.setValue([0, 0], 1)).toBe(true);
-    expectBoardNotes(board).toMatchSnapshot('board with [0, 0] set to 1');
+    expectBoardNotesSnapshot(board, 'board with [0, 0] set to 1');
 
     expect(board.setValue([1, 2], 6)).toBe(true);
     expectBoardNotes(board).toMatchSnapshot(
@@ -190,7 +190,7 @@ it('sets values properly', () => {
 
     board = Board.Empty;
     expect(board.setValue([0, 5], 6)).toBe(true);
-    expectBoardNotes(board).toMatchSnapshot('board with [5, 6] set to 6');
+    expectBoardNotesSnapshot(board, 'board with [5, 6] set to 6');
 });
 
 describe('validate()', () => {

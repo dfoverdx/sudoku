@@ -9,9 +9,12 @@ declare class Board {
     print(notes?: boolean): string;
 }
 
-// @ts-ignore
-window.expectBoardNotes = function(board: Board) {
-    return expect(board.print(true));
+window.expectBoardNotes = function(board: Board): jest.Matchers<string> {
+    return expect('\n' + board.print(true));
+}
+
+window.expectBoardNotesSnapshot = function(board: Board, snapshotName: string): string {
+    return expectBoardNotes(board).toMatchSnapshot(snapshotName);
 }
 
 // @ts-ignore

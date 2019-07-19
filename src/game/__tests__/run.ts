@@ -1,8 +1,13 @@
 import Board from '../board';
-import run, { rules } from '../run';
+import run, { GuessResult, makeGuess, rules } from '../run';
 import {
-    AppExpertBoard, AppMasterBoard, AppToughBoard, FullBoard, SiteEasyBoard, SiteHardBoard
+    AppExpertBoard, AppMasterBoard, AppMasterBoard2, AppToughBoard, FullBoard, SiteEasyBoard, SiteExpertBoard,
+    SiteHardBoard
 } from './__helpers__/test-boards';
+
+afterEach(() => {
+    jest.restoreAllMocks();
+});
 
 describe('run()', () => {
     it('returns true if the board is complete', () => {
@@ -29,34 +34,58 @@ describe('run()', () => {
             rule2Board = board.clone();
 
         // gets stuck on rule 1
-        while (rules.canOnlyBeValue(rule1Board)) { }
-        expectBoardNotes(rule1Board).toMatchSnapshot('gets stuck with just rule 1');
+        while (rules.canOnlyBeValue(rule1Board)) {}
+        expectBoardNotesSnapshot(rule1Board, 'gets stuck with just rule 1');
 
-        while (rules.onlyCellCanBeValue(rule2Board)) { }
-        expectBoardNotes(rule2Board).toMatchSnapshot('gets stuck with just rule 2');
+        while (rules.onlyCellCanBeValue(rule2Board)) {}
+        expectBoardNotesSnapshot(rule2Board, 'gets stuck with just rule 2');
 
         run(board);
         expect(run(board)).toBe(true);
-        expectBoardNotes(board).toMatchSnapshot('complete board');
+        expectBoardNotesSnapshot(board, 'complete board');
     });
 
     it('does its best on an expert difficulty level', () => {
         const board = AppExpertBoard.clone();
         run(board);
-        expectBoardNotes(board).toMatchSnapshot('expert board stuck');
+        expectBoardNotesSnapshot(board, 'expert board stuck');
     });
 
     it('does its best on a master difficulty level', () => {
         const board = AppMasterBoard.clone();
         run(board);
-        expectBoardNotes(board).toMatchSnapshot('master board stuck');
+        expectBoardNotesSnapshot(board, 'master board stuck');
+    });
+
+    it('can beat any valid puzzle with guessing', () => {
+        jest.spyOn(console, 'info').mockImplementation(() => void(0));
+
+        let board = AppMasterBoard.clone();
+        run(board, true);
+        expectBoardNotesSnapshot(board, 'complete master board');
+
+        board = AppMasterBoard2.clone();
+        run(board, true);
+        expectBoardNotesSnapshot(board, 'complete master board 2');
+
+        board = Board.Empty;
+        run(board, true);
+        expectBoardNotesSnapshot(board, 'complete empty board');
+    });
+
+    it('handles guessing on invalid puzzles', () => {
+        jest.spyOn(console, 'info').mockImplementation(() => void(0));
+        let board = AppMasterBoard.clone();
+        board.setValue([0, 0], 7);
+
+        expect(run(board, true)).toBe(false);
     });
 });
 
-test('ruleCanOnlyBeValue', () => {
+test('canOnlyBeValue', () => {
     let board = Board.Empty;
     expect(rules.canOnlyBeValue(board)).toBe(false);
-    expectBoardNotes(board).toMatchSnapshot('empty board');
+    expectBoardNotesSnapshot(board, 'empty board');
 
     board = Board.parse(`
         12345678.
@@ -71,7 +100,7 @@ test('ruleCanOnlyBeValue', () => {
     `);
 
     expect(rules.canOnlyBeValue(board)).toBe(true);
-    expectBoardNotes(board).toMatchSnapshot('full row');
+    expectBoardNotesSnapshot(board, 'full row');
 
     board = Board.parse(`
         123......
@@ -86,7 +115,7 @@ test('ruleCanOnlyBeValue', () => {
     `);
 
     expect(rules.canOnlyBeValue(board)).toBe(true);
-    expectBoardNotes(board).toMatchSnapshot('three constraints');
+    expectBoardNotesSnapshot(board, 'three constraints');
 
     board = Board.parse(`
         123...78.
@@ -101,21 +130,21 @@ test('ruleCanOnlyBeValue', () => {
     `);
 
     expect(rules.canOnlyBeValue(board)).toBe(true);
-    expectBoardNotes(board).toMatchSnapshot('multiple gets in one go');
+    expectBoardNotesSnapshot(board, 'multiple gets in one go');
 
     board = SiteEasyBoard.clone();
     expect(rules.canOnlyBeValue(board)).toBe(true);
-    expectBoardNotes(board).toMatchSnapshot('easy mode');
+    expectBoardNotesSnapshot(board, 'easy mode');
 
-    while (rules.canOnlyBeValue(board)) { }
-    expectBoardNotes(board).toMatchSnapshot('easy mode complete');
+    while (rules.canOnlyBeValue(board)) {}
+    expectBoardNotesSnapshot(board, 'easy mode complete');
 
     board = SiteHardBoard.clone();
-    while (rules.canOnlyBeValue(board)) { }
-    expectBoardNotes(board).toMatchSnapshot('hard board stuck');
+    while (rules.canOnlyBeValue(board)) {}
+    expectBoardNotesSnapshot(board, 'hard board stuck');
 });
 
-test('ruleOnlyCellCanBeValue', () => {
+test('onlyCellCanBeValue', () => {
     let board = Board.parse(`
         .........
         ........3
@@ -129,31 +158,31 @@ test('ruleOnlyCellCanBeValue', () => {
     `);
 
     expect(rules.onlyCellCanBeValue(board)).toBe(true);
-    expectBoardNotes(board).toMatchSnapshot('[0, 2] = 3');
+    expectBoardNotesSnapshot(board, '[0, 2] = 3');
 
     board = SiteEasyBoard.clone();
     expect(rules.onlyCellCanBeValue(board)).toBe(true);
-    expectBoardNotes(board).toMatchSnapshot('easy board');
+    expectBoardNotesSnapshot(board, 'easy board');
 
-    while (rules.onlyCellCanBeValue(board)) { }
-    expectBoardNotes(board).toMatchSnapshot('easy board complete');
+    while (rules.onlyCellCanBeValue(board)) {}
+    expectBoardNotesSnapshot(board, 'easy board complete');
 
     board = AppToughBoard.clone();
     expect(rules.onlyCellCanBeValue(board)).toBe(true);
-    expectBoardNotes(board).toMatchSnapshot('tough board');
+    expectBoardNotesSnapshot(board, 'tough board');
 
-    while (rules.onlyCellCanBeValue(board)) { }
-    expectBoardNotes(board).toMatchSnapshot('tough board stuck');
+    while (rules.onlyCellCanBeValue(board)) {}
+    expectBoardNotesSnapshot(board, 'tough board stuck');
 
     board = SiteHardBoard.clone();
     expect(rules.onlyCellCanBeValue(board)).toBe(true);
-    expectBoardNotes(board).toMatchSnapshot('hard board');
+    expectBoardNotesSnapshot(board, 'hard board');
 
-    while (rules.onlyCellCanBeValue(board)) { }
-    expectBoardNotes(board).toMatchSnapshot('hard board complete');
+    while (rules.onlyCellCanBeValue(board)) {}
+    expectBoardNotesSnapshot(board, 'hard board complete');
 });
 
-test('ruleValueMustBeInRowOrColumnOfRegion', () => {
+test('valueMustBeInRowOrColumnOfRegion', () => {
     let board = Board.parse(`
         .23......
         .56......
@@ -167,5 +196,88 @@ test('ruleValueMustBeInRowOrColumnOfRegion', () => {
     `);
 
     expect(rules.valueMustBeInRowOrColumnOfRegion(board)).toBe(true);
-    expectBoardNotes(board).toMatchSnapshot();
+    expectBoardNotesSnapshot(board);
+});
+
+// test('setsOfValues', () => {
+//     let board = Board.parse(`
+//         1........
+//         .5.....23
+//         .89......
+//         2........
+//         .........
+//         .........
+//         3........
+//         6........
+//         .........
+//     `);
+
+//     expect(rules.setsOfValues(board)).toBe(true);
+//     expectBoardNotesSnapshot(board, 'sets of two values');
+
+//     board = Board.parse(`
+//         1........
+//         .5.....23
+//         .89......
+//         2........
+//         .........
+//         .........
+//         3........
+//         .........
+//         .........
+//     `);
+
+//     expect(rules.setsOfValues(board)).toBe(true);
+//     expectBoardNotesSnapshot(board, 'sets of 3 values');
+
+//     board = Board.parse(`
+//         1........
+//         .5.....23
+//         .89.....6
+//         2........
+//         .........
+//         .........
+//         3........
+//         .........
+//         .........
+//     `);
+
+//     expect(rules.setsOfValues(board)).toBe(true);
+//     expectBoardNotesSnapshot(board, 'sets of mixed 2 and 3 values');
+// });
+
+// test('numOpenSpaces', () => {
+//     const board = Board.parse(`
+//         .23......
+//         .56......
+//         .89......
+//         .........
+//         .........
+//         .........
+//         .........
+//         .........
+//         .........
+//     `);
+
+//     expect(numOpenSpaces(board.region(0))).toBe(3);
+//     expect(numOpenSpaces(board.region(2))).toBe(9);
+// });
+
+test('guess()', () => {
+
+    let board = SiteExpertBoard.clone(),
+        result: GuessResult | false = makeGuess(board) as GuessResult;
+    expect(result).not.toBe(false);
+    expectBoardNotesSnapshot(result[0], 'Guess a 3 at [1,1]');
+    expect(result[1][0]).toEqual([1, 1]);
+    expect(result[1][1]).toBe(3);
+
+    result = makeGuess(board, result[1]) as GuessResult;
+    expect(result).not.toBe(false);
+    expectBoardNotesSnapshot(result[0], 'Guess a 5 at [1,1]');
+    expect(result[1][0]).toEqual([1, 1]);
+    expect(result[1][1]).toBe(5);
+
+    result = makeGuess(board, result[1]);
+    expect(result).toBe(false);
 });

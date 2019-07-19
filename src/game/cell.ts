@@ -5,8 +5,13 @@ import { assertValidCoordinates, assertValidValue, CellCoord, CellIndex, CellVal
 export type Notes = [boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean];
 const AllNotes: Notes = new Array(9).fill(true).toReadonly() as Notes;
 
+export interface NotesSet extends Set<CellValue> {}
+export const NotesSet = Set;
+
 export interface NotesCell extends Cell {
     readonly notes: Notes;
+    readonly notesArray: CellValue[];
+    readonly notesSet: NotesSet;
 }
 
 export interface ValueCell extends Cell {
@@ -17,6 +22,8 @@ export interface FixedCell extends ValueCell {
     readonly isValid: true;
     readonly notes: undefined;
 }
+
+export type CellType = NotesCell | ValueCell | FixedCell;
 
 export default class Cell {
     /**
@@ -66,7 +73,7 @@ export default class Cell {
     /**
      * Whether or not the cell is valid, that is, whether the `CellValue` is available according to the cell's `notes`.
      */
-    public isValid: boolean = true;
+    public isValid = true;
 
     /**
      * The list of values this cell can possibly be.  If the cell is a `FixedCell`, is `undefined`.
@@ -85,6 +92,22 @@ export default class Cell {
 
     public get region() {
         return getRegion(this.coord);
+    }
+
+    public get notesArray(): CellValue[] | undefined {
+        if (!cellIs.notes(this)) {
+            return undefined;
+        }
+
+        return this.notes.map((v, i) => v ? i + 1 as CellValue : 0).filter(v => v) as CellValue[];
+    }
+
+    public get notesSet(): NotesSet | undefined {
+        if (!cellIs.notes(this)) {
+            return undefined;
+        }
+
+        return new Set<CellValue>(this.notesArray);
     }
 
     /**

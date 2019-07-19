@@ -1,5 +1,5 @@
 import Cell, { cellIs } from '../cell';
-import cellValues, { CellValue } from '../cell-values';
+import cellValues, { AllCellValues, CellValue } from '../cell-values';
 
 afterEach(() => {
     jest.restoreAllMocks();
@@ -123,6 +123,20 @@ it('prints', () => {
 
     cell = new Cell([0, 0], new Set<CellValue>([1, 5, 9]));
     expect(cell.print()).toMatchSnapshot('cell with notes 1, 5, and 9');
+});
+
+test('notesSet', () => {
+    let cell = new Cell([0, 0], 1);
+    expect(cell.notesSet).toBeUndefined();
+
+    cell = new Cell([0, 0], 1, false);
+    expect(cell.notesSet).toBeUndefined();
+
+    cell = new Cell([0, 0]);
+    expect(cell.notesSet).toEqual(new Set(AllCellValues));
+
+    cell = new Cell([0, 0], new Set<CellValue>([1, 2, 3]));
+    expect(cell.notesSet).toEqual(new Set([1, 2, 3]));
 });
 
 describe('canBe()', () => {
