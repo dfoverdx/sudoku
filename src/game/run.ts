@@ -112,7 +112,7 @@ function valueMustBeInRowOrColumnOfRegionRule(board: Board): boolean {
         for (const cell of unfilledCells) {
             for (const val of AllCellValues.filter(v => cell.canBe(v))) {
                 let allInRow = true,
-                    allInCol =  true;
+                    allInCol = true;
                 const otherCells = unfilledCells.filter(c => c !== cell && c.canBe(val));
                 if (!otherCells.length) {
                     continue;
