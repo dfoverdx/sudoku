@@ -61,15 +61,15 @@ describe('run()', () => {
         jest.spyOn(console, 'info').mockImplementation(() => void(0));
 
         let board = AppMasterBoard.clone();
-        run(board, true);
+        run(board, { guess: true });
         expectBoardNotesSnapshot(board, 'complete master board');
 
         board = AppMasterBoard2.clone();
-        run(board, true);
+        run(board, { guess: true });
         expectBoardNotesSnapshot(board, 'complete master board 2');
 
         board = Board.Empty;
-        run(board, true);
+        run(board, { guess: true });
         expectBoardNotesSnapshot(board, 'complete empty board');
     });
 
@@ -78,7 +78,7 @@ describe('run()', () => {
         let board = AppMasterBoard.clone();
         board.setValue([0, 0], 7);
 
-        expect(run(board, true)).toBe(false);
+        expect(run(board, { guess: true })).toBe(false);
     });
 });
 

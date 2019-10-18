@@ -10,4 +10,8 @@ declare global {
     function isNaN(s: string | number): boolean;
 
     type ElementType<T> = T extends (infer U)[] ? U : T;
+
+    interface PromiseConstructor {
+        wait(timeout: number): Promise<void>;
+    }
 }

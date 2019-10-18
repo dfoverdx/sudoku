@@ -1,6 +1,6 @@
 // import Rewire from 'rewire';
 
-declare var global: any;
+declare var global: NodeJS.Global;
 window = window || global;
 
 // window.rewire = Rewire;

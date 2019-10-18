@@ -5,6 +5,7 @@
 		}
 	],
 	"settings": {
-		"files.trimTrailingWhitespace": false
+		"files.trimTrailingWhitespace": false,
+		"favorites.sortDirection": "DESC"
 	}
 }

@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 const ExtractCSSPlugin = require('extract-css-chunks-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 var BitBarWebpackProgressPlugin = undefined;
 try {
     BitBarWebpackProgressPlugin = require('bitbar-webpack-progress-plugin');
@@ -13,23 +14,16 @@ module.exports = function genConfig(_, options) {
     /**
      * @type webpack.Configuration
      */
-    const config = {
-        entry: './src/index.ts',
-        output: {
-            filename: PROD ? '[name].min.js' : '[name].js',
-        },
+    const baseConfig = {
         optimization: {
             minimizer: [ new TerserPlugin({
                 include: /\.js$/,
                 sourceMap: true,
-                extractComments: true,
+                extractComments: false,
             }) ],
             minimize: PROD
         },
         devtool: 'source-map',
-        resolve: {
-            extensions: [ '.js', '.json', '.ts' ]
-        },
         module: {
             rules: [
                 {
@@ -60,10 +54,55 @@ module.exports = function genConfig(_, options) {
                 }
             ]
         },
+    };
+
+    /**
+     * @type webpack.Configuration
+     */
+    const nodeConfig = {
+        entry: {
+            main: './src/index.ts',
+            ocr: './src/ocr.ts',
+        },
+        output: {
+            filename: PROD ? '[name].min.js' : '[name].js',
+            path: __dirname + '/dist/node',
+        },
+        target: 'node',
+        resolve: {
+            extensions: [ '.js', '.json', '.ts' ]
+        },
+        plugins: [
+            new webpack.DefinePlugin({
+                DEVELOPMENT: !PROD,
+                PRODUCTION: PROD
+            }),
+            BitBarWebpackProgressPlugin && new BitBarWebpackProgressPlugin(),
+        ],
+        externals: {
+            puppeteer: 'require("puppeteer")',
+        }
+    };
+
+    /**
+     * @type webpack.Configuration
+     */
+    const webConfig = {
+        entry: './src/web/index.tsx',
+        output: {
+            filename: PROD ? '[name].min.js' : '[name].js',
+            path: __dirname + '/dist/web',
+        },
+        resolve: {
+            extensions: [ '.js', '.json', '.ts', '.tsx' ]
+        },
         plugins: [
             new ExtractCSSPlugin({
                 filename: PROD ? '[name].min.css' : '[name].css',
             }),
+            new CopyWebpackPlugin([
+                { from: './src/web/index.htm', to: '.' }
+            ]),
             new webpack.DefinePlugin({
                 DEVELOPMENT: !PROD,
                 PRODUCTION: PROD
@@ -72,9 +111,13 @@ module.exports = function genConfig(_, options) {
         ],
         externals: {
             react: 'React',
-            'react-dom': 'ReactDOM'
+            'react-dom': 'ReactDOM',
+            jquery: 'jQuery'
         }
     };
 
-    return config;
+    return [
+        nodeConfig,
+        webConfig,
+    ].map(config => Object.assign({}, baseConfig, config));
 }

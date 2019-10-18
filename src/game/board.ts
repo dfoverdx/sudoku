@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import '../helpers/array-extensions';
 import Cell, { cellIs, CellType, ValueCell } from './cell';
 import {
@@ -24,13 +25,14 @@ export type Cells<T extends Row | Column | Region = Row> = [T, T, T, T, T, T, T,
 /**
  * Represents a 9x9 Sudoku board.
  */
-export default class Board {
+export default class Board extends EventEmitter {
     /**
      * Constructs a board with the given values.
      *
      * @param values The cell values of the board.
      */
     constructor(private readonly values: Cells) {
+        super();
         this.initNotes();
     }
 

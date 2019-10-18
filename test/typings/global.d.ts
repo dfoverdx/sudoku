@@ -3,7 +3,6 @@ export {}
 declare class Board {}
 
 declare global {
-
     function expectBoardNotes(board: Board): jest.Matchers<string>;
     function expectBoardNotesSnapshot(board: Board, snapshotName?: string): string;
     function expectStringify(value: () => any, spaces?: number, replacer?: (string | number)[]): jest.Matchers<() => string>;

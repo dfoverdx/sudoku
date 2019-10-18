@@ -1,18 +1,39 @@
-import Board, { CellGroup } from './board';
+import Board from './board';
 import { cellIs, CellType, NotesCell } from './cell';
 import { AllCellValues, CellCoord, CellIndex, CellValue } from './cell-values';
 
 export type GuessResult = [Board, [CellCoord, CellValue]];
+type OnSetValue = (coord: CellCoord, value: CellValue) => void;
+type OnRuleChage = (rule: number) => void;
 
-export default function run(board: Board, guess = false): boolean {
-    let madeChange = true;
+interface RunOptions {
+    guess?: boolean;
+    onSetValue?: OnSetValue;
+    onRuleChange?: OnRuleChage;
+}
+
+export default function run(
+    board: Board,
+    {
+        guess,
+        onSetValue,
+        onRuleChange,
+    }: RunOptions = { guess: false }
+): boolean {
+    let madeChange = 1;
+    const rules = [
+        () => canOnlyBeValueRule(board, onSetValue),
+        () => onlyCellCanBeValueRule(board, onSetValue),
+        () => valueMustBeInRowOrColumnOfRegionRule(board),
+        // setsOfValuesRule(board),
+    ];
+
     while (madeChange) {
-        madeChange = [
-            canOnlyBeValueRule(board),
-            onlyCellCanBeValueRule(board),
-            valueMustBeInRowOrColumnOfRegionRule(board),
-            // setsOfValuesRule(board),
-        ].some(mc => mc);
+        madeChange = 0;
+        for (let i = 0; i < rules.length; i++) {
+            onRuleChange && onRuleChange(i + 1);
+            madeChange |= (rules[i]() as any as number);
+        }
     }
 
     if (guess && !board.isComplete) {
@@ -27,11 +48,12 @@ export default function run(board: Board, guess = false): boolean {
         do {
             [clone, guessed] = result;
             console.info(`Guessing value ${guessed[1]} at ${JSON.stringify(guessed[0])}`);
-            if (run(clone, true)) {
+            if (run(clone, { guess: true })) {
                 for (const cell of board.cells) {
                     if (cellIs.notes(cell)) {
                         let cloneCell = clone.cellAt(cell.coord);
                         board.setValue(cloneCell.coord, cloneCell.value!);
+                        onSetValue && onSetValue(cloneCell.coord, cloneCell.value!);
                     }
                 }
 
@@ -52,7 +74,7 @@ export const rules = {
     // setsOfValues: setsOfValuesRule,
 };
 
-function canOnlyBeValueRule(board: Board): boolean {
+function canOnlyBeValueRule(board: Board, onSetValue?: OnSetValue): boolean {
     let madeChange = false;
 
     for (const cell of board.cells) {
@@ -63,6 +85,7 @@ function canOnlyBeValueRule(board: Board): boolean {
         let mustBe = cell.mustBe();
         if (mustBe) {
             board.setValue(cell.coord, mustBe);
+            onSetValue && onSetValue(cell.coord, mustBe);
             madeChange = true;
         }
     }
@@ -70,7 +93,7 @@ function canOnlyBeValueRule(board: Board): boolean {
     return !!madeChange;
 }
 
-function onlyCellCanBeValueRule(board: Board): boolean {
+function onlyCellCanBeValueRule(board: Board, onSetValue?: OnSetValue): boolean {
     let madeChange = false;
 
     for (const testVal of AllCellValues) {
@@ -80,6 +103,7 @@ function onlyCellCanBeValueRule(board: Board): boolean {
             idx = row.indexOfOnly(cell => cell.canBe(testVal));
             if (idx !== -1 && cellIs.notes(row[idx])) {
                 board.setValue(row[idx].coord, testVal);
+                onSetValue && onSetValue(row[idx].coord, testVal);
                 madeChange = true;
             }
         }
@@ -88,6 +112,7 @@ function onlyCellCanBeValueRule(board: Board): boolean {
             idx = col.indexOfOnly(cell => cell.canBe(testVal));
             if (idx !== -1 && cellIs.notes(col[idx])) {
                 board.setValue(col[idx].coord, testVal);
+                onSetValue && onSetValue(col[idx].coord, testVal);
                 madeChange = true;
             }
         }
@@ -96,6 +121,7 @@ function onlyCellCanBeValueRule(board: Board): boolean {
             idx = reg.indexOfOnly(cell => cell.canBe(testVal));
             if (idx !== -1 && cellIs.notes(reg[idx])) {
                 board.setValue(reg[idx].coord, testVal);
+                onSetValue && onSetValue(reg[idx].coord, testVal);
                 madeChange = true;
             }
         }
@@ -303,6 +329,6 @@ export function makeGuess(
 //     return true;
 // }
 
-export function numOpenSpaces(cellGroup: CellGroup): 0 | CellValue {
-    return cellGroup.filter(c => cellIs.notes(c)).length as 0 | CellValue;
-}
+// export function numOpenSpaces(cellGroup: CellGroup): 0 | CellValue {
+//     return cellGroup.filter(c => cellIs.notes(c)).length as 0 | CellValue;
+// }
