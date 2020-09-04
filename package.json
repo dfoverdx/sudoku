@@ -42,7 +42,7 @@
     "esm": "^3.2.25",
     "extract-css-chunks-webpack-plugin": "^4.5.5",
     "jest": "^24.8.0",
-    "node-sass": "^4.12.0",
+    "node-sass": "^4.13.1",
     "p-queue": "^6.1.0",
     "prettier": "^1.18.2",
     "react": "^16.8.6",
